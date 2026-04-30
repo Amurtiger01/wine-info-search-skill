@@ -1,10 +1,12 @@
-# 🍷 Wine Info Search
+# Wine Info Search
+
+> **READ-ONLY**: This skill only searches and displays information. It does NOT make purchases, process payments, or modify any accounts.
 
 > Search for wine and alcohol information, ratings, prices, and buying recommendations across 16+ major platforms worldwide.
 
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.5.0-orange.svg)](CHANGELOG)
+[![Version](https://img.shields.io/badge/Version-1.6.0-orange.svg)](CHANGELOG)
 
 ## ✨ Features
 
@@ -38,8 +40,8 @@
 ### Install
 
 ```bash
-git clone https://github.com/your-username/wine-info-search.git
-cd wine-info-search
+git clone https://github.com/Amurtiger01/wine-info-search-skill.git
+cd wine-info-search-skill
 ```
 
 No `pip install` required for core functionality. Optional dependencies:
