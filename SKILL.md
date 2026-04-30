@@ -204,6 +204,8 @@ python scripts/wine_search.py <brand> --firecrawl-key <api_key>
 ||| `--mode` | No | Search mode: `info` (details only), `price` (prices & links), `all` (default) |
 ||| `--image` | No | Path to wine label image for photo recognition guidance |
 ||| `--firecrawl-key` | No | Firecrawl API key for Vivino access (overrides env var) |
+| `--insecure` | No | Disable SSL certificate verification (for restricted networks) |
+| `--no-wiki` | No | Skip Wikipedia background lookup |
 
 ## Common Query Patterns
 
@@ -304,4 +306,4 @@ When running in `--mode all`, the script outputs six structured sections:
 - **WebFetch-assisted price fetching** ！ The script outputs WebFetch-ready price hints (URL + extraction instructions). The AI agent should use its WebFetch tool to visit these URLs and parse the content for real-time prices. This is far more reliable than direct HTML scraping.
 - **Health drinking advice** ！ The script provides age-group-specific daily drinking limits (4 age groups), health condition warnings (10 conditions with risk levels), and general safe drinking tips. Advice is automatically adjusted based on wine type ABV.
 - **Food pairing recommendations** ！ The script provides curated staple food and main dish pairing suggestions for 6 wine types (red/white/sparkling/ros└/dessert/fortified), along with pairing principles.
-- **SSL verification disabled** ！ The script disables SSL certificate verification (`verify_mode = ssl.CERT_NONE`) to handle various network environments. This is a security trade-off for broader compatibility.
+- **Secure by default, fallback for compatibility** ！ The script validates SSL certificates by default. If certificate verification fails (e.g. corporate proxy), it automatically retries without verification. Users can also pass `--insecure` to skip verification entirely.

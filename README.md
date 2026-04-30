@@ -143,7 +143,11 @@ python scripts/wine_search.py "拉菲" --firecrawl-key fc-xxxx
 
 ### SSL Note
 
-The script disables SSL certificate verification (`ssl.CERT_NONE`) for broader network compatibility. This is a security trade-off — if you're in a trusted network environment, you can re-enable it by modifying the `ssl._create_unverified_context()` call in the script.
+The script **validates SSL certificates by default** (secure). If certificate verification fails (e.g. behind a corporate proxy or restricted network), it automatically retries without verification for compatibility. You can also pass `--insecure` to skip verification entirely:
+
+```bash
+python scripts/wine_search.py "拉菲" --insecure
+```
 
 ## 🔧 Integration with AI Agents
 

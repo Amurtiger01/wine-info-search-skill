@@ -60,6 +60,7 @@ Usage:
   python wine_search.py "Penfolds" --mode price
   python wine_search.py --image "/path/to/wine_label.jpg"
   python wine_search.py "拉菲" --firecrawl-key fc-xxxx
+  python wine_search.py "拉菲" --insecure         # Disable SSL verification (for restricted networks)
 
 Optional dependencies:
   OCR:  pip install pytesseract Pillow   # Requires Tesseract-OCR installed on system
@@ -78,10 +79,48 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 
-# SSL context
+# SSL context — secure by default; use --insecure flag to disable verification
 _ssl_ctx = ssl.create_default_context()
-_ssl_ctx.check_hostname = False
-_ssl_ctx.verify_mode = ssl.CERT_NONE
+_insecure_mode = False
+
+def _enable_insecure_mode():
+    """Disable SSL verification. Only called when user explicitly passes --insecure."""
+    global _ssl_ctx, _insecure_mode
+    _insecure_mode = True
+    _ssl_ctx = ssl.create_default_context()
+    _ssl_ctx.check_hostname = False
+    _ssl_ctx.verify_mode = ssl.CERT_NONE
+
+# Fallback SSL context for retry after cert errors
+_ssl_ctx_insecure = None
+
+def _get_insecure_ctx():
+    """Lazy-init insecure SSL context for fallback only."""
+    global _ssl_ctx_insecure
+    if _ssl_ctx_insecure is None:
+        _ssl_ctx_insecure = ssl.create_default_context()
+        _ssl_ctx_insecure.check_hostname = False
+        _ssl_ctx_insecure.verify_mode = ssl.CERT_NONE
+    return _ssl_ctx_insecure
+
+def _urlopen_secure(req, timeout=30):
+    """Open URL with SSL verification; fall back to insecure only on SSL cert errors.
+    
+    Default behavior is secure (validates certificates). If an SSLCertVerificationError
+    occurs, retries once with verification disabled. This ensures compatibility in
+    restricted network environments (e.g. corporate proxies) while keeping the default
+    secure. Users can also pass --insecure to skip verification entirely.
+    """
+    try:
+        return urllib.request.urlopen(req, context=_ssl_ctx, timeout=timeout)
+    except (ssl.SSLCertVerificationError, urllib.error.URLError) as e:
+        if _insecure_mode:
+            raise  # Already using insecure context, don't retry
+        # Only retry on cert-related errors
+        if isinstance(e, ssl.SSLCertVerificationError) or \
+           (isinstance(e, urllib.error.URLError) and isinstance(e.reason, ssl.SSLCertVerificationError)):
+            return urllib.request.urlopen(req, context=_get_insecure_ctx(), timeout=timeout)
+        raise
 
 # ============================================================
 # Wine Platform URLs & Config
@@ -167,7 +206,7 @@ def firecrawl_scrape(url, formats=None, wait_for=3000, timeout=25):
     
     req = urllib.request.Request(FIRECRAWL_API_URL, data=data, headers=headers, method='POST')
     try:
-        with urllib.request.urlopen(req, context=_ssl_ctx, timeout=timeout) as resp:
+        with _urlopen_secure(req, timeout=timeout) as resp:
             result = json.loads(resp.read().decode('utf-8'))
             if result.get('success'):
                 return result.get('data', {}).get('markdown', '')
@@ -201,7 +240,7 @@ def firecrawl_search(query, limit=5, timeout=20):
     
     req = urllib.request.Request(FIRECRAWL_SEARCH_API_URL, data=data, headers=headers, method='POST')
     try:
-        with urllib.request.urlopen(req, context=_ssl_ctx, timeout=timeout) as resp:
+        with _urlopen_secure(req, timeout=timeout) as resp:
             result = json.loads(resp.read().decode('utf-8'))
             if result.get('success'):
                 return result.get('data', [])
@@ -770,7 +809,7 @@ def _http_get_json(url, headers=None, timeout=8):
     headers.setdefault("Accept", "application/json")
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, context=_ssl_ctx, timeout=timeout) as resp:
+        with _urlopen_secure(req, timeout=timeout) as resp:
             return json.loads(resp.read().decode("utf-8", errors="replace"))
     except Exception as e:
         return None
@@ -783,7 +822,7 @@ def _http_get_text(url, headers=None, timeout=8):
     headers.setdefault("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     req = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(req, context=_ssl_ctx, timeout=timeout) as resp:
+        with _urlopen_secure(req, timeout=timeout) as resp:
             return resp.read().decode("utf-8", errors="replace")
     except Exception as e:
         return None
@@ -3492,6 +3531,10 @@ def main():
             continue
         elif arg == "--no-wiki":
             skip_wiki = True
+            i += 1
+            continue
+        elif arg == "--insecure":
+            _enable_insecure_mode()
             i += 1
             continue
         elif arg.startswith("--"):
