@@ -6,7 +6,7 @@ description: >
   ratings, prices, or buying recommendations. It supports searching by brand name, vintage year,
   and series name across major domestic and international platforms. It also supports image-based
   wine label recognition using OCR. Trigger scenarios include: looking up wine ratings,
-  comparing wine prices across platforms (京东/天猫/Wine-Searcher/etc.), checking vintage comparisons
+  comparing wine prices across platforms (JD.com/Tmall/Wine-Searcher/etc.), checking vintage comparisons
   for a specific wine, getting detailed wine info (grape varieties, taste profile, food pairing),
   getting wine & winery background information, getting vintage recommendations by year,
   getting health-related drinking advice by age group and medical conditions, getting staple food
@@ -24,32 +24,32 @@ optional_env:
 
 ## Overview
 
-Search for wine and other alcohol detailed information, community/professional ratings, and prices across 16+ major platforms worldwide. Primary data sources are **Wine-Searcher via WebFetch** and **Vivino via Firecrawl**. **Firecrawl integration (v1.4)** restores Vivino access by using US proxy IPs + JavaScript rendering, bypassing Vivino's China IP blockade. **Wikipedia API integration (v1.5)** provides wine & winery background information (history, region, winery stories) from both English and Chinese Wikipedia, accessible from China without API keys. **Open Food Facts API** is a supplementary free data source. Supports Chinese/English bilingual name mapping (110+ common wine names) with multi-segment replacement for automatic cross-language search. WebFetch-assisted price fetching for real-time prices from JD.com, Wine-Searcher, etc. Image-based label recognition via pytesseract or easyocr. **Vintage recommendations** with rating-based labels (卓越/优秀/良好/一般/不佳) and year-specific buying advice. Health drinking advice customized by age group and medical conditions. Staple food & main dish pairing recommendations. Also generates direct search links for all major domestic (京东/天猫/淘宝/苏宁/拼多多/1919/也买酒/酒仙网) and international (Vivino/Wine.com/Drizly/Total Wine/Wine-Searcher/Wine Spectator/CellarTracker/Decántalo) platforms.
+Search for wine and other alcohol detailed information, community/professional ratings, and prices across 16+ major platforms worldwide. Primary data sources are **Wine-Searcher via WebFetch** and **Vivino via Firecrawl**. **Firecrawl integration (v1.4)** restores Vivino access by using US proxy IPs + JavaScript rendering, bypassing Vivino's China IP blockade. **Wikipedia API integration (v1.5)** provides wine & winery background information (history, region, winery stories) from both English and Chinese Wikipedia, accessible from China without API keys. **Open Food Facts API** is a supplementary free data source. Supports Chinese/English bilingual name mapping (110+ common wine names) with multi-segment replacement for automatic cross-language search. WebFetch-assisted price fetching for real-time prices from JD.com, Wine-Searcher, etc. Image-based label recognition via pytesseract or easyocr. **Vintage recommendations** with rating-based labels (Outstanding/Very Good/Good/Fair/Poor) and year-specific buying advice. Health drinking advice customized by age group and medical conditions. Staple food & main dish pairing recommendations. Also generates direct search links for all major domestic (JD.com/Tmall/Taobao/Suning/Pinduoduo/1919/Yemaijiu/Jiuxian) and international (Vivino/Wine.com/Drizly/Total Wine/Wine-Searcher/Wine Spectator/CellarTracker/Decántalo) platforms.
 
 ## Data Sources
 
-||| Source | Type | Key Required | Data Provided | Status |
-|||--------|------|-------------|---------------|--------|
-||| Wine-Searcher (WebFetch) | Web + AI parsing | No | Ratings, prices, vintages, grape info, tasting notes | ? Primary |
-||| Vivino (Firecrawl) | Firecrawl scrape | Yes (API Key) | Ratings, taste profile, grapes, food pairing, prices | ? Secondary (restored) |
-||| Wikipedia API | REST API | No | Wine & winery background, history, region info | ? Tertiary (v1.5) |
-||| Open Food Facts API | REST API | No | Basic wine metadata (ABV, grape, image) | ? Supplementary |
-||| Vivino API | REST API | No | Wine search, details, ratings | ? Blocked (403) |
-||| Vivino Web (fallback) | Web scraping | No | Basic search when API is blocked | ? Timeout (CN) |
-||| WebFetch Price Hints | URL + AI parsing | No | Real-time prices from JD.com, Tmall, Wine-Searcher | ? Works |
-||| Direct Scrape (legacy) | Web scraping | No | Best-effort prices from JD.com, Wine-Searcher | ?? Low rate |
-||| Platform Link Generator | URL builder | No | Direct search links for 16+ platforms | ? Works |
-||| Health & Food Database | Built-in data | No | Age-group drinking limits, 10 health conditions, 6 wine-type food pairings | ? Works |
+| Source | Type | Key Required | Data Provided | Status |
+|--------|------|-------------|---------------|--------|
+| Wine-Searcher (WebFetch) | Web + AI parsing | No | Ratings, prices, vintages, grape info, tasting notes | Primary |
+| Vivino (Firecrawl) | Firecrawl scrape | Yes (API Key) | Ratings, taste profile, grapes, food pairing, prices | Secondary (restored) |
+| Wikipedia API | REST API | No | Wine & winery background, history, region info | Tertiary (v1.5) |
+| Open Food Facts API | REST API | No | Basic wine metadata (ABV, grape, image) | Supplementary |
+| Vivino API | REST API | No | Wine search, details, ratings | Blocked (403) |
+| Vivino Web (fallback) | Web scraping | No | Basic search when API is blocked | Timeout (CN) |
+| WebFetch Price Hints | URL + AI parsing | No | Real-time prices from JD.com, Tmall, Wine-Searcher | Works |
+| Direct Scrape (legacy) | Web scraping | No | Best-effort prices from JD.com, Wine-Searcher | Low rate |
+| Platform Link Generator | URL builder | No | Direct search links for 16+ platforms | Works |
+| Health & Food Database | Built-in data | No | Age-group drinking limits, 10 health conditions, 6 wine-type food pairings | Works |
 
 ### Data Source Strategy (v1.5)
 
 The script uses a **cascading fallback** approach for wine search:
 
-1. **Firecrawl → Vivino** — If `FIRECRAWL_API_KEY` is configured, uses Firecrawl's US proxy + JS rendering to access Vivino search page. **Best option for China users** — returns rich data (ratings, taste profile, grape varieties, food pairing, prices).
-2. **Vivino API** — Attempted next (best-case: rich data). Currently returns 403 Forbidden.
-3. **Vivino Web Search** — Best-effort fallback. Often times out from China mainland.
-4. **Wine-Searcher direct scrape** — Best-effort. Often times out from China mainland.
-5. **Open Food Facts API** — Always accessible, but limited to basic metadata (no ratings/prices).
+1. **Firecrawl -> Vivino** -- If `FIRECRAWL_API_KEY` is configured, uses Firecrawl's US proxy + JS rendering to access Vivino search page. **Best option for China users** -- returns rich data (ratings, taste profile, grape varieties, food pairing, prices).
+2. **Vivino API** -- Attempted next (best-case: rich data). Currently returns 403 Forbidden.
+3. **Vivino Web Search** -- Best-effort fallback. Often times out from China mainland.
+4. **Wine-Searcher direct scrape** -- Best-effort. Often times out from China mainland.
+5. **Open Food Facts API** -- Always accessible, but limited to basic metadata (no ratings/prices).
 
 **Wine & Winery Background** is fetched from **Wikipedia API** (both English and Chinese), which is:
 - Free, no API key required
@@ -58,13 +58,13 @@ The script uses a **cascading fallback** approach for wine search:
 - Bilingual: automatically searches both `en.wikipedia.org` and `zh.wikipedia.org`
 
 **Vintage Recommendations** use the existing Vivino vintage data but add:
-- Rating-based recommendation labels: ? 卓越 (≥4.5), ? 优秀 (≥4.0), ? 良好 (≥3.5), ? 一般 (≥3.0), ?? 不佳 (<3.0)
+- Rating-based recommendation labels: Outstanding (>=4.5), Very Good (>=4.0), Good (>=3.5), Fair (>=3.0), Poor (<3.0)
 - Confidence notes for low rating counts
 - Year-specific buying advice when user specifies a vintage
 - Summary of best vintages (outstanding + very good)
 
 **For the AI agent**: The most reliable approach is:
-- **With Firecrawl**: Firecrawl → Vivino provides rich data directly from the script.
+- **With Firecrawl**: Firecrawl -> Vivino provides rich data directly from the script.
 - **Without Firecrawl**: Use **WebFetch on Wine-Searcher** as the primary data source. The script outputs WebFetch-ready hints with URLs and extraction instructions.
 
 ### Firecrawl Configuration
@@ -77,7 +77,7 @@ set FIRECRAWL_API_KEY=fc-xxxx     # Windows
 export FIRECRAWL_API_KEY=fc-xxxx  # Linux/macOS
 
 # Alternative: Command-line argument (key may be visible in shell history / process list)
-python scripts/wine_search.py "拉菲" --firecrawl-key fc-xxxx
+python scripts/wine_search.py "Lafite" --firecrawl-key fc-xxxx
 ```
 
 Free tier provides **500 requests/month**. Register at [firecrawl.dev](https://firecrawl.dev).
@@ -90,20 +90,20 @@ Free tier provides **500 requests/month**. Register at [firecrawl.dev](https://f
 
 Search for wine details and ratings. Returns:
 - Wine name, winery, vintage year
-- Wine type (red/white/sparkling/rosé/dessert/fortified)
+- Wine type (red/white/sparkling/rose/dessert/fortified)
 - Region and country of origin
-- Community rating with visual bar (★★★★☆ 4.2/5)
+- Community rating with visual bar (4.2/5)
 - Number of ratings
 - Reference price and currency
 - Direct link (Wine-Searcher / Vivino)
 - **Grape varieties** with blending percentages (e.g. "Cabernet Sauvignon 70%, Merlot 30%")
-- **Taste profile**: body/tannin/acidity/sweetness with visual bars (█???? 1/5)
+- **Taste profile**: body/tannin/acidity/sweetness with visual bars (1-5 scale)
 - **Food pairing** suggestions
 - **Wine description** summary
 
 **Script command:**
 ```bash
-python scripts/wine_search.py "拉菲" 2018 --mode info
+python scripts/wine_search.py "Lafite" 2018 --mode info
 python scripts/wine_search.py "Lafite" 2018 "Rothschild" --mode info
 ```
 
@@ -119,7 +119,7 @@ The script outputs URLs and extraction instructions for each price platform. The
 
 **Script command:**
 ```bash
-python scripts/wine_search.py "奔富" 2020 "Bin 389" --mode price
+python scripts/wine_search.py "Penfolds" 2020 "Bin 389" --mode price
 python scripts/wine_search.py "Penfolds" --mode price
 ```
 
@@ -127,7 +127,7 @@ python scripts/wine_search.py "Penfolds" --mode price
 
 Combines info + price + wine tips + health advice + food pairing in one search. Returns:
 - All wine information from Capability 1
-- Vintage comparison table for the best match (year × rating × price)
+- Vintage comparison table for the best match (year x rating x price)
 - All platform prices and links from Capability 2
 - Wine tips: drinking window advice based on vintage age and wine type, purchase recommendations
 - Health drinking advice by age group with recommended daily limits
@@ -136,7 +136,7 @@ Combines info + price + wine tips + health advice + food pairing in one search. 
 
 **Script command:**
 ```bash
-python scripts/wine_search.py "拉菲" 2018
+python scripts/wine_search.py "Lafite" 2018
 python scripts/wine_search.py "Lafite" 2018 "Rothschild" --mode all
 ```
 
@@ -165,34 +165,34 @@ pip install easyocr              # Deep learning OCR, no external install needed
 
 ## Workflow
 
-1. **Collect parameters** — Extract brand name (required), year (optional), series name (optional), and mode (info/price/all, default all) from the user's query. If the user mentions a wine label photo, use `--image` mode.
+1. **Collect parameters** -- Extract brand name (required), year (optional), series name (optional), and mode (info/price/all, default all) from the user's query. If the user mentions a wine label photo, use `--image` mode.
 
-2. **Resolve bilingual query** — The script automatically detects Chinese/English input and maps it to the corresponding language variant using a 110+ entry name dictionary with multi-segment replacement. For example, "拉菲 奥希耶黑鸢" → "Lafite Aussieres Noir". This ensures domestic platforms get Chinese queries and international platforms get English queries.
+2. **Resolve bilingual query** -- The script automatically detects Chinese/English input and maps it to the corresponding language variant using a 110+ entry name dictionary with multi-segment replacement. For example, Chinese "Lafite Aussieres Noir" is mapped to the English equivalent for international platforms. This ensures domestic platforms get Chinese queries and international platforms get English queries.
 
-3. **Execute search** — Run `scripts/wine_search.py` with the collected parameters. The script will:
+3. **Execute search** -- Run `scripts/wine_search.py` with the collected parameters. The script will:
    - If Firecrawl API key is available, use Firecrawl to access Vivino (richest data source)
-   - Fall back through Vivino API → Vivino Web → Wine-Searcher → Open Food Facts
+   - Fall back through Vivino API -> Vivino Web -> Wine-Searcher -> Open Food Facts
    - Select the best matching result (preferring matching vintage year)
    - Fetch wine details (grape varieties, taste profile, food pairing, description) if available
    - Optionally fetch vintage comparison data
    - Generate WebFetch-ready hints for Wine-Searcher (primary) and domestic platforms
    - Generate direct search links for all platforms (CN query for domestic, EN for international)
 
-4. **Use WebFetch for reliable data** — The AI agent should use its WebFetch tool to:
+4. **Use WebFetch for reliable data** -- The AI agent should use its WebFetch tool to:
    - **Visit Wine-Searcher** first for the most comprehensive wine data (ratings, prices, tasting notes)
-   - Visit domestic platforms (京东/天猫) for CNY prices (may be blocked by anti-scraping)
+   - Visit domestic platforms (JD.com/Tmall) for CNY prices (may be blocked by anti-scraping)
    - Parse the returned content and present it to the user
 
-5. **Present results** — Display the structured output to the user, highlighting:
+5. **Present results** -- Display the structured output to the user, highlighting:
    - Best match with rating, price, and detailed wine profile
    - Key price differences across platforms
    - Drinking window advice if vintage year is provided
 
-6. **Handle no results** — If all data sources return no results, provide:
+6. **Handle no results** -- If all data sources return no results, provide:
    - Direct Wine-Searcher search link
    - Open Food Facts search link
    - Vivino search link (may require VPN or Firecrawl)
-   - Suggest trying alternative spellings (Chinese ? English)
+   - Suggest trying alternative spellings (Chinese <-> English)
    - Suggest removing the series name to broaden the search
    - Suggest configuring Firecrawl API key for Vivino access
 
@@ -204,65 +204,65 @@ python scripts/wine_search.py --image <image_path>
 python scripts/wine_search.py <brand> --firecrawl-key <api_key>
 ```
 
-||| Parameter | Required | Description |
-|||-----------|----------|-------------|
-||| `brand` | Yes | Wine brand name (Chinese or English), e.g. "拉菲", "Lafite", "奔富" |
-||| `year` | No | Vintage year (1800-2100), e.g. 2018 |
-||| `series` | No | Series/cuvée name, e.g. "Bin 389", "Rothschild" |
-||| `--mode` | No | Search mode: `info` (details only), `price` (prices & links), `all` (default) |
-||| `--image` | No | Path to wine label image for photo recognition guidance |
-||| `--firecrawl-key` | No | Firecrawl API key for Vivino access (overrides env var) |
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `brand` | Yes | Wine brand name (Chinese or English), e.g. "Lafite", "Penfolds" |
+| `year` | No | Vintage year (1800-2100), e.g. 2018 |
+| `series` | No | Series/cuvee name, e.g. "Bin 389", "Rothschild" |
+| `--mode` | No | Search mode: `info` (details only), `price` (prices & links), `all` (default) |
+| `--image` | No | Path to wine label image for photo recognition guidance |
+| `--firecrawl-key` | No | Firecrawl API key for Vivino access (overrides env var) |
 | `--insecure` | No | Disable SSL certificate verification (for restricted networks) |
 | `--no-wiki` | No | Skip Wikipedia background lookup |
 
 ## Common Query Patterns
 
-||| User Query | Suggested Command |
-|||-----------|-------------------|
-||| "查一下拉菲2018年的评分" | `python scripts/wine_search.py "拉菲" 2018 --mode info` |
-||| "奔富Bin 389多少钱" | `python scripts/wine_search.py "奔富" 2020 "Bin 389" --mode price` |
-||| "Lafite Rothschild 2018详细信息和价格" | `python scripts/wine_search.py "Lafite" 2018 "Rothschild" --mode all` |
-||| "这瓶酒是什么" (with photo) | `python scripts/wine_search.py --image "<path>"` |
-||| "帮我看看这款酒值不值得买" | `python scripts/wine_search.py "<brand>" <year> --mode all` |
-||| "推荐买红酒的平台" | `python scripts/wine_search.py "<brand>" --mode price` |
-||| "用Firecrawl搜索Vivino" | `python scripts/wine_search.py "<brand>" --firecrawl-key fc-xxxx` |
+| User Query | Suggested Command |
+|-----------|-------------------|
+| "Look up Lafite 2018 ratings" | `python scripts/wine_search.py "Lafite" 2018 --mode info` |
+| "How much is Penfolds Bin 389" | `python scripts/wine_search.py "Penfolds" 2020 "Bin 389" --mode price` |
+| "Lafite Rothschild 2018 details and price" | `python scripts/wine_search.py "Lafite" 2018 "Rothschild" --mode all` |
+| "What wine is this" (with photo) | `python scripts/wine_search.py --image "<path>"` |
+| "Is this wine worth buying" | `python scripts/wine_search.py "<brand>" <year> --mode all` |
+| "Best platform to buy wine" | `python scripts/wine_search.py "<brand>" --mode price` |
+| "Use Firecrawl to search Vivino" | `python scripts/wine_search.py "<brand>" --firecrawl-key fc-xxxx` |
 
 ## Output Sections
 
 When running in `--mode all`, the script outputs six structured sections:
 
-### Section 1: ? 酒款信息 (Wine Information)
+### Section 1: Wine Information
 - Number of search results found
 - Top 8 matches with: name, winery, type, region, rating bar, reference price, link
-- Best match indicator (? 最佳匹配)
+- Best match indicator
 - **Detailed wine info for best match**:
   - Grape varieties with blending percentages
   - Taste profile (body/tannin/acidity/sweetness) with visual bars and Chinese labels
   - Food pairing suggestions
   - Wine description summary
 - **Vintage comparison table with recommendations** (up to 15 years):
-  - Rating-based recommendation labels: ? 卓越 (≥4.5), ? 优秀 (≥4.0), ? 良好 (≥3.5), ? 一般 (≥3.0), ?? 不佳 (<3.0)
+  - Rating-based recommendation labels: Outstanding (>=4.5), Very Good (>=4.0), Good (>=3.5), Fair (>=3.0), Poor (<3.0)
   - Confidence notes for low rating counts
   - Year-specific buying advice when user specifies a vintage
   - Summary of best vintages (outstanding + very good)
 
-### Section 1c: ?? 酒款与酒庄背景 (Wine & Winery Background) — **NEW in v1.5**
+### Section 1c: Wine & Winery Background -- **NEW in v1.5**
 - Wine background from Wikipedia (history, region, appellation info)
 - Winery/producer background from Wikipedia (founding, notable achievements)
 - Bilingual search: automatically tries both English and Chinese Wikipedia
 - Links to full Wikipedia articles for deeper reading
 
-### Section 2: ? 各平台价格与购买链接 (Platform Prices & Links)
+### Section 2: Platform Prices & Links
 - WebFetch-ready price hints with URLs and extraction instructions (including Firecrawl-Vivino hint if configured)
 - Best-effort direct scraping results (legacy)
 - 8 domestic platform search links
 - 8 international platform search links
 
-### Section 3: ? 酒款小贴士 (Wine Tips)
+### Section 3: Wine Tips
 - Drinking window advice based on vintage age **and wine type** (different windows for red/white/sparkling/dessert/fortified)
 - Purchase recommendations
 
-### Section 4: ? 健康饮用建议 (Health & Drinking Advice)
+### Section 4: Health & Drinking Advice
 - Age-group-specific daily drinking limits (4 groups: 18-35 / 36-55 / 56-70 / 70+)
 - Standard drink calculations based on wine ABV
 - Health condition warnings (10 conditions with risk levels and max intake):
@@ -270,7 +270,7 @@ When running in `--mode all`, the script outputs six structured sections:
 - General safe drinking tips
 - Wine type-specific notes (e.g., fortified wines: halve the amount; dessert wines: sugar warning)
 
-### Section 5: ?? 餐饮搭配建议 (Food Pairing Recommendations)
+### Section 5: Food Pairing Recommendations
 - Wine-Searcher / Vivino food pairing suggestions (from API or Firecrawl, if available)
 - Curated staple food recommendations by wine type (4 items each)
 - Curated main dish recommendations with detailed pairing explanations (4 items each)
@@ -278,41 +278,41 @@ When running in `--mode all`, the script outputs six structured sections:
 
 ## Wine Type Mapping
 
-||| Code/Key | Display Name |
-|||----------|-------------|
-||| 1 / red | 红葡萄酒 (Red) |
-||| 2 / white | 白葡萄酒 (White) |
-||| 3 / sparkling | 起泡酒 (Sparkling) |
-||| 4 / rose | 桃红葡萄酒 (Rosé) |
-||| 5 / dessert | 甜酒 (Dessert) |
-||| 6 / fortified | 加强酒 (Fortified) |
+| Code/Key | Display Name |
+|----------|-------------|
+| 1 / red | Red Wine |
+| 2 / white | White Wine |
+| 3 / sparkling | Sparkling Wine |
+| 4 / rose | Rose Wine |
+| 5 / dessert | Dessert Wine |
+| 6 / fortified | Fortified Wine |
 
 ## Rating Scale
 
-||| Range | Description |
-|||-------|-------------|
-||| 0 - 2.0 | 较差 (Poor) |
-||| 2.0 - 3.0 | 一般 (Below Average) |
-||| 3.0 - 3.5 | 尚可 (Average) |
-||| 3.5 - 4.0 | 不错 (Good) |
-||| 4.0 - 4.5 | 优秀 (Very Good) |
-||| 4.5 - 5.0 | 卓越 (Outstanding) |
+| Range | Description |
+|-------|-------------|
+| 0 - 2.0 | Poor |
+| 2.0 - 3.0 | Below Average |
+| 3.0 - 3.5 | Average |
+| 3.5 - 4.0 | Good |
+| 4.0 - 4.5 | Very Good |
+| 4.5 - 5.0 | Outstanding |
 
-**Tip**: Ratings ≥ 4.0 (or 80/100 on Wine-Searcher) generally indicate good quality wines.
+**Tip**: Ratings >= 4.0 (or 80/100 on Wine-Searcher) generally indicate good quality wines.
 
 ## Important Notes
 
-- **Firecrawl restores Vivino access** — By configuring a Firecrawl API key, the script can access Vivino's rich data (ratings, taste profile, grape varieties, food pairing) via US proxy + JS rendering. This is the recommended approach for China-based users.
-- **Wikipedia provides wine & winery background (v1.5)** — The script automatically fetches background information from both English and Chinese Wikipedia. No API key required, accessible from China. Provides wine history, winery stories, and region appellation info.
-- **Vintage recommendations with buying advice (v1.5)** — The vintage comparison table now includes recommendation labels (卓越/优秀/良好/一般/不佳) and year-specific buying advice. When the user specifies a vintage, the script recommends whether to buy and suggests better alternatives if applicable.
-- **Vivino API deprecated** — Vivino closed public API access in 2025 (returns 403 Forbidden). The script still attempts it as best-effort, but automatically falls back to Firecrawl/Vivino, Wine-Searcher and Open Food Facts.
-- **Wine-Searcher is the primary data source** — The most reliable way to get wine data without Firecrawl is via the AI agent's WebFetch tool visiting Wine-Searcher. Direct script access to Wine-Searcher often times out from China mainland.
-- **Open Food Facts as supplementary** — Free, public API accessible from China. Provides basic wine metadata (ABV, grape variety, image) but no ratings or prices.
-- **API key required for Firecrawl** — Firecrawl requires an API key (free tier: 500 requests/month). Set via `FIRECRAWL_API_KEY` env var or `--firecrawl-key` argument.
-- **Chinese/English bilingual name mapping** — The script contains a 110+ entry dictionary with multi-segment replacement. When "拉菲 奥希耶黑鸢" is entered, it maps to "Lafite Aussieres Noir" for international platforms.
-- **Image search via OCR** — The `--image` flag uses pytesseract or easyocr (optional dependencies) to extract text from wine label images, then automatically parses the text to identify brand/year/series and runs a full search.
-- **WebFetch-assisted price fetching** — The script outputs WebFetch-ready price hints (URL + extraction instructions). The AI agent should use its WebFetch tool to visit these URLs and parse the content for real-time prices. This is far more reliable than direct HTML scraping.
-- **Health drinking advice** — The script provides age-group-specific daily drinking limits (4 age groups), health condition warnings (10 conditions with risk levels), and general safe drinking tips. Advice is automatically adjusted based on wine type ABV. **Disclaimer: health-related output is general information only, not medical advice — consult a qualified professional for medical decisions.**
-- **Food pairing recommendations** — The script provides curated staple food and main dish pairing suggestions for 6 wine types (red/white/sparkling/rosé/dessert/fortified), along with pairing principles.
-- **Secure by default, no automatic fallback** — The script validates SSL certificates by default and does NOT automatically fall back to insecure mode. If certificate verification fails, the error is raised with a suggestion to use `--insecure`. The `--insecure` flag is blocked when a Firecrawl API key is present, to prevent bearer token interception over unverified TLS connections.
-- **Firecrawl API key security** — The optional `FIRECRAWL_API_KEY` environment variable is used solely for wine search requests to api.firecrawl.dev. Prefer environment variable over `--firecrawl-key` argument to avoid exposing the key in shell history or process listings. When a key is present, `--insecure` is automatically blocked.
+- **Firecrawl restores Vivino access** -- By configuring a Firecrawl API key, the script can access Vivino's rich data (ratings, taste profile, grape varieties, food pairing) via US proxy + JS rendering. This is the recommended approach for China-based users.
+- **Wikipedia provides wine & winery background (v1.5)** -- The script automatically fetches background information from both English and Chinese Wikipedia. No API key required, accessible from China. Provides wine history, winery stories, and region appellation info.
+- **Vintage recommendations with buying advice (v1.5)** -- The vintage comparison table now includes recommendation labels (Outstanding/Very Good/Good/Fair/Poor) and year-specific buying advice. When the user specifies a vintage, the script recommends whether to buy and suggests better alternatives if applicable.
+- **Vivino API deprecated** -- Vivino closed public API access in 2025 (returns 403 Forbidden). The script still attempts it as best-effort, but automatically falls back to Firecrawl/Vivino, Wine-Searcher and Open Food Facts.
+- **Wine-Searcher is the primary data source** -- The most reliable way to get wine data without Firecrawl is via the AI agent's WebFetch tool visiting Wine-Searcher. Direct script access to Wine-Searcher often times out from China mainland.
+- **Open Food Facts as supplementary** -- Free, public API accessible from China. Provides basic wine metadata (ABV, grape variety, image) but no ratings or prices.
+- **API key required for Firecrawl** -- Firecrawl requires an API key (free tier: 500 requests/month). Set via `FIRECRAWL_API_KEY` env var or `--firecrawl-key` argument.
+- **Chinese/English bilingual name mapping** -- The script contains a 110+ entry dictionary with multi-segment replacement. Chinese brand names are automatically mapped to English equivalents for international platforms.
+- **Image search via OCR** -- The `--image` flag uses pytesseract or easyocr (optional dependencies) to extract text from wine label images, then automatically parses the text to identify brand/year/series and runs a full search.
+- **WebFetch-assisted price fetching** -- The script outputs WebFetch-ready price hints (URL + extraction instructions). The AI agent should use its WebFetch tool to visit these URLs and parse the content for real-time prices. This is far more reliable than direct HTML scraping.
+- **Health drinking advice** -- The script provides age-group-specific daily drinking limits (4 age groups), health condition warnings (10 conditions with risk levels), and general safe drinking tips. Advice is automatically adjusted based on wine type ABV. **Disclaimer: health-related output is general information only, not medical advice -- consult a qualified professional for medical decisions.**
+- **Food pairing recommendations** -- The script provides curated staple food and main dish pairing suggestions for 6 wine types (red/white/sparkling/rose/dessert/fortified), along with pairing principles.
+- **Secure by default, no automatic fallback** -- The script validates SSL certificates by default and does NOT automatically fall back to insecure mode. If certificate verification fails, the error is raised with a suggestion to use `--insecure`. The `--insecure` flag is blocked when a Firecrawl API key is present, to prevent bearer token interception over unverified TLS connections.
+- **Firecrawl API key security** -- The optional `FIRECRAWL_API_KEY` environment variable is used solely for wine search requests to api.firecrawl.dev. Prefer environment variable over `--firecrawl-key` argument to avoid exposing the key in shell history or process listings. When a key is present, `--insecure` is automatically blocked.
