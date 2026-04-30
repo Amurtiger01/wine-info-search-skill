@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Wine Info Search Script v1.5
+Wine Info Search Script v1.6
 Searches for wine and other alcohol detailed information, ratings, and prices across major platforms.
 
 Data Sources:
@@ -79,47 +79,47 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 
-# SSL context — secure by default; use --insecure flag to disable verification
+# SSL context — secure by default; --insecure flag requires explicit user consent
 _ssl_ctx = ssl.create_default_context()
 _insecure_mode = False
 
 def _enable_insecure_mode():
-    """Disable SSL verification. Only called when user explicitly passes --insecure."""
-    global _ssl_ctx, _insecure_mode
+    """Disable SSL verification. Only called when user explicitly passes --insecure.
+    
+    BLOCKED when a Firecrawl API key is present — bearer tokens must never be
+    sent over unverified TLS connections to prevent credential interception.
+    """
+    global _ssl_ctx, _insecure_mode, _firecrawl_api_key
+    if _firecrawl_api_key:
+        print("  ⚠️ 安全限制: 检测到 Firecrawl API Key，不允许禁用 SSL 验证")
+        print("     原因: Bearer Token 不能通过未验证的 TLS 连接发送，以免凭据被截获")
+        print("     解决: 移除 --insecure 参数，或在无 API Key 环境下使用")
+        return False
     _insecure_mode = True
     _ssl_ctx = ssl.create_default_context()
     _ssl_ctx.check_hostname = False
     _ssl_ctx.verify_mode = ssl.CERT_NONE
-
-# Fallback SSL context for retry after cert errors
-_ssl_ctx_insecure = None
-
-def _get_insecure_ctx():
-    """Lazy-init insecure SSL context for fallback only."""
-    global _ssl_ctx_insecure
-    if _ssl_ctx_insecure is None:
-        _ssl_ctx_insecure = ssl.create_default_context()
-        _ssl_ctx_insecure.check_hostname = False
-        _ssl_ctx_insecure.verify_mode = ssl.CERT_NONE
-    return _ssl_ctx_insecure
+    return True
 
 def _urlopen_secure(req, timeout=30):
-    """Open URL with SSL verification; fall back to insecure only on SSL cert errors.
+    """Open URL with SSL verification — no automatic fallback.
     
-    Default behavior is secure (validates certificates). If an SSLCertVerificationError
-    occurs, retries once with verification disabled. This ensures compatibility in
-    restricted network environments (e.g. corporate proxies) while keeping the default
-    secure. Users can also pass --insecure to skip verification entirely.
+    SSL certificate verification is always enforced. If verification fails,
+    the error is raised with a helpful message suggesting the --insecure flag.
+    This prevents Man-in-the-Middle attacks and credential interception.
+    
+    When --insecure is used (and no API key is present), the insecure context
+    is used directly without any fallback logic.
     """
     try:
         return urllib.request.urlopen(req, context=_ssl_ctx, timeout=timeout)
     except (ssl.SSLCertVerificationError, urllib.error.URLError) as e:
-        if _insecure_mode:
-            raise  # Already using insecure context, don't retry
-        # Only retry on cert-related errors
         if isinstance(e, ssl.SSLCertVerificationError) or \
            (isinstance(e, urllib.error.URLError) and isinstance(e.reason, ssl.SSLCertVerificationError)):
-            return urllib.request.urlopen(req, context=_get_insecure_ctx(), timeout=timeout)
+            if not _insecure_mode:
+                print(f"  ⚠️ SSL 证书验证失败: {e}")
+                print("     如在网络受限环境中，可使用 --insecure 参数禁用验证")
+                print("     注意: 使用 API Key 时不允许禁用 SSL 验证")
         raise
 
 # ============================================================
@@ -2248,6 +2248,9 @@ def format_health_advice(wine_type=None, user_age=None, conditions=None):
     output.append("     • 饮酒后至少6小时内不要驾车")
     output.append("     • 孕妇及备孕期女性应完全戒酒")
     output.append("     • 如有慢性病或服药，请先咨询医生")
+    output.append("")
+    output.append("  ⚕️ 免责声明: 以上健康建议仅为一般性参考信息，不构成医疗建议。")
+    output.append("     如有健康疑虑，请咨询专业医疗人员。")
     
     return "\n".join(output)
 
@@ -3498,6 +3501,7 @@ def _fix_windows_console_encoding():
 
 
 def main():
+    global _insecure_mode, _ssl_ctx
     _fix_windows_console_encoding()
     args = sys.argv[1:]
     
@@ -3559,6 +3563,13 @@ def main():
         else:
             series = f"{series} {arg}"
         i += 1
+    
+    # Security: re-check insecure mode if API key was set after --insecure flag
+    if _insecure_mode and _firecrawl_api_key:
+        print("  ⚠️ 安全限制: 检测到 Firecrawl API Key 与 --insecure 同时使用")
+        print("     Bearer Token 不能通过未验证的 TLS 连接发送，已恢复安全模式")
+        _insecure_mode = False
+        _ssl_ctx = ssl.create_default_context()
     
     if image_path:
         search_by_image(image_path)

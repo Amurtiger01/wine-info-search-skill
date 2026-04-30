@@ -1,6 +1,6 @@
 ---
 name: wine-info-search
-version: 1.5.0
+version: 1.6.0
 description: >
   This skill should be used when the user wants to search for wine or other alcohol information,
   ratings, prices, or buying recommendations. It supports searching by brand name, vintage year,
@@ -12,6 +12,12 @@ description: >
   getting health-related drinking advice by age group and medical conditions, getting staple food
   and main dish pairing recommendations, getting drinking-window advice for aged wines, identifying
   a wine from a label photo, or asking for purchase recommendations.
+optional_env:
+  FIRECRAWL_API_KEY: >
+    Optional. Firecrawl API key for accessing Vivino via US proxy. Used solely for
+    wine search requests to api.firecrawl.dev. Free tier: 500 requests/month.
+    Register at https://firecrawl.dev. Prefer environment variable over --firecrawl-key
+    to avoid exposing the key in shell history or process listings.
 ---
 
 # Wine Info Search
@@ -63,18 +69,20 @@ The script uses a **cascading fallback** approach for wine search:
 
 ### Firecrawl Configuration
 
-To enable Firecrawl-based Vivino access, configure the API key using one of:
+To enable Firecrawl-based Vivino access, configure the API key. **Prefer the environment variable** to avoid exposing the key in shell history or process listings.
 
 ```bash
-# Option 1: Environment variable
+# Recommended: Environment variable
 set FIRECRAWL_API_KEY=fc-xxxx     # Windows
 export FIRECRAWL_API_KEY=fc-xxxx  # Linux/macOS
 
-# Option 2: Command-line argument
+# Alternative: Command-line argument (key may be visible in shell history / process list)
 python scripts/wine_search.py "À­·Æ" --firecrawl-key fc-xxxx
 ```
 
 Free tier provides **500 requests/month**. Register at [firecrawl.dev](https://firecrawl.dev).
+
+**Security note**: When a Firecrawl API key is present, the `--insecure` flag is automatically blocked to prevent bearer token interception over unverified TLS connections.
 
 ## Core Capabilities
 
@@ -304,6 +312,7 @@ When running in `--mode all`, the script outputs six structured sections:
 - **Chinese/English bilingual name mapping** ¡ª The script contains a 110+ entry dictionary with multi-segment replacement. When "À­·Æ °ÂÏ£Ò®ºÚð°" is entered, it maps to "Lafite Aussieres Noir" for international platforms.
 - **Image search via OCR** ¡ª The `--image` flag uses pytesseract or easyocr (optional dependencies) to extract text from wine label images, then automatically parses the text to identify brand/year/series and runs a full search.
 - **WebFetch-assisted price fetching** ¡ª The script outputs WebFetch-ready price hints (URL + extraction instructions). The AI agent should use its WebFetch tool to visit these URLs and parse the content for real-time prices. This is far more reliable than direct HTML scraping.
-- **Health drinking advice** ¡ª The script provides age-group-specific daily drinking limits (4 age groups), health condition warnings (10 conditions with risk levels), and general safe drinking tips. Advice is automatically adjusted based on wine type ABV.
+- **Health drinking advice** ¡ª The script provides age-group-specific daily drinking limits (4 age groups), health condition warnings (10 conditions with risk levels), and general safe drinking tips. Advice is automatically adjusted based on wine type ABV. **Disclaimer: health-related output is general information only, not medical advice ¡ª consult a qualified professional for medical decisions.**
 - **Food pairing recommendations** ¡ª The script provides curated staple food and main dish pairing suggestions for 6 wine types (red/white/sparkling/ros¨¦/dessert/fortified), along with pairing principles.
-- **Secure by default, fallback for compatibility** ¡ª The script validates SSL certificates by default. If certificate verification fails (e.g. corporate proxy), it automatically retries without verification. Users can also pass `--insecure` to skip verification entirely.
+- **Secure by default, no automatic fallback** ¡ª The script validates SSL certificates by default and does NOT automatically fall back to insecure mode. If certificate verification fails, the error is raised with a suggestion to use `--insecure`. The `--insecure` flag is blocked when a Firecrawl API key is present, to prevent bearer token interception over unverified TLS connections.
+- **Firecrawl API key security** ¡ª The optional `FIRECRAWL_API_KEY` environment variable is used solely for wine search requests to api.firecrawl.dev. Prefer environment variable over `--firecrawl-key` argument to avoid exposing the key in shell history or process listings. When a key is present, `--insecure` is automatically blocked.

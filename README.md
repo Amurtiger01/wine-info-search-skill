@@ -81,7 +81,7 @@ python scripts/wine_search.py "拉菲" --firecrawl-key fc-xxxx
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `FIRECRAWL_API_KEY` | No | Firecrawl API key for Vivino access. Free tier: 500 req/month. Register at [firecrawl.dev](https://firecrawl.dev) |
+| `FIRECRAWL_API_KEY` | No | Firecrawl API key for Vivino access (wine search only). Prefer env var over `--firecrawl-key` to avoid key exposure. Free tier: 500 req/month. Register at [firecrawl.dev](https://firecrawl.dev) |
 
 ## 📋 Output Sections
 
@@ -130,22 +130,25 @@ wine-info-search/
 
 ### Firecrawl Integration
 
-Firecrawl enables Vivino access from China by providing US proxy IPs + JavaScript rendering:
+Firecrawl enables Vivino access from China by providing US proxy IPs + JavaScript rendering. **Prefer the environment variable** to avoid exposing the key in shell history or process listings.
 
 ```bash
-# Option 1: Environment variable
+# Recommended: Environment variable
 export FIRECRAWL_API_KEY=fc-xxxx     # Linux/macOS
 set FIRECRAWL_API_KEY=fc-xxxx        # Windows
 
-# Option 2: Command-line argument
+# Alternative: Command-line argument (key visible in shell history)
 python scripts/wine_search.py "拉菲" --firecrawl-key fc-xxxx
 ```
 
+**Security**: When a Firecrawl API key is present, `--insecure` is automatically blocked to prevent bearer token interception.
+
 ### SSL Note
 
-The script **validates SSL certificates by default** (secure). If certificate verification fails (e.g. behind a corporate proxy or restricted network), it automatically retries without verification for compatibility. You can also pass `--insecure` to skip verification entirely:
+The script **validates SSL certificates by default** — no automatic fallback to insecure mode. If certificate verification fails, the error includes a suggestion to use `--insecure`. The `--insecure` flag is **blocked** when a Firecrawl API key is present:
 
 ```bash
+# Only works when no API key is configured
 python scripts/wine_search.py "拉菲" --insecure
 ```
 
