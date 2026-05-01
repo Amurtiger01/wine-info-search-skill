@@ -202,6 +202,9 @@ def firecrawl_scrape(url, formats=None, wait_for=3000, timeout=25):
         'waitFor': wait_for,
     }).encode('utf-8')
     
+    # NOTE: _firecrawl_api_key is a simple API key (NOT an OAuth token).
+    # Scope: read-only search/scrape queries to api.firecrawl.dev only.
+    # No write, delete, account, or checkout operations.
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {_firecrawl_api_key}',
@@ -236,6 +239,8 @@ def firecrawl_search(query, limit=5, timeout=20):
         'limit': limit,
     }).encode('utf-8')
     
+    # NOTE: _firecrawl_api_key is a simple API key (NOT an OAuth token).
+    # Scope: read-only search queries to api.firecrawl.dev only.
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {_firecrawl_api_key}',

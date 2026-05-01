@@ -2,7 +2,7 @@
 
 > **READ-ONLY**: This skill only searches and displays information. It does NOT make purchases, process payments, or modify any accounts.
 
-> Search for wine and alcohol information, ratings, prices, and buying recommendations across 16+ major platforms worldwide.
+> Search for wine and alcohol information, ratings, prices, and value comparisons across 16+ major platforms worldwide.
 
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -14,7 +14,7 @@
 - **110+ bilingual name mapping** — Chinese ↔ English auto-translation (e.g. "拉菲" → "Lafite")
 - **Multi-segment replacement** — "拉菲 奥希耶黑鸢" → "Lafite Aussieres Noir"
 - **Wine & winery background** — Wikipedia-powered history, region, and appellation info (bilingual)
-- **Vintage comparison & recommendations** — Rating-based labels (卓越/优秀/良好/一般/不佳) with buying advice
+- **Vintage comparison & recommendations** — Rating-based labels (Outstanding/Very Good/Good/Fair/Poor) with value advice
 - **16+ platform price links** — 京东, 天猫, 淘宝, 拼多多, Vivino, Wine-Searcher, Total Wine, etc.
 - **Health drinking advice** — Age-group limits, 10 health condition warnings
 - **Food pairing** — Staple food & main dish recommendations for 6 wine types
@@ -44,15 +44,15 @@ git clone https://github.com/Amurtiger01/wine-info-search-skill.git
 cd wine-info-search-skill
 ```
 
-No `pip install` required for core functionality. Optional dependencies:
+No `pip install` required for core functionality. Optional dependencies (pinned versions):
 
 ```bash
-# OCR for wine label recognition
-pip install pytesseract Pillow   # Requires Tesseract-OCR on system
-pip install easyocr              # Deep learning OCR, standalone
-
-# Or install all optional dependencies
+# Install all optional OCR dependencies with pinned versions
 pip install -r scripts/requirements.txt
+
+# Or install individually (pinned versions recommended):
+# pip install pytesseract==0.3.13 Pillow==11.2.1   # Requires Tesseract-OCR on system
+# pip install easyocr==1.7.2                        # Deep learning OCR, standalone
 ```
 
 ### Basic Usage
@@ -92,7 +92,7 @@ When running in default (`--mode all`) mode, the script outputs:
 1. **📋 酒款信息** — Search results, best match details, grape varieties, taste profile, vintage comparison
 2. **🏛️ 酒款与酒庄背景** — Wikipedia-sourced wine & winery history
 3. **💰 各平台价格与购买链接** — WebFetch price hints + 16 platform search links
-4. **📖 酒款小贴士** — Drinking window advice, purchase recommendations
+4. **Drinking Tips** — Drinking window advice, value recommendations
 5. **🏥 健康饮用建议** — Age-group limits, health condition warnings
 6. **🍽️ 餐饮搭配建议** — Food pairing recommendations
 
