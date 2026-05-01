@@ -1,6 +1,6 @@
 ---
 name: wine-info-search
-version: 1.6.0
+version: 1.6.1
 homepage: https://github.com/Amurtiger01/wine-info-search-skill
 source: https://github.com/Amurtiger01/wine-info-search-skill
 capabilities:
